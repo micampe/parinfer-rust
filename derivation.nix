@@ -9,8 +9,6 @@ rustPlatform.buildRustPackage rec {
     lockFile = ./Cargo.lock;
   };
 
-  useFetchCargoVendor = true;
-
   nativeBuildInputs = [
     llvmPackages.libclang
     llvmPackages.clang
