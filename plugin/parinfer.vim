@@ -242,9 +242,18 @@ function! s:process_buffer() abort
         call s:log_diff(l:orig_text, l:response['text'])
         let l:lines = split(l:response["text"], "\n", 1)
         let l:changed = filter(range(len(l:lines)), 'l:lines[v:val] !=# l:orig_lines[v:val]')
-        silent! undojoin
         try
+          undojoin
           call setline(l:changed[0]+1, l:lines[l:changed[0]:l:changed[-1]])
+        catch /E790:/ " undojoin is not allowed after undo
+          " Calling setline() after undojoin failed with E790 starts a new
+          " undo branch and re-does the undo, causing a loop (issue #112).
+          " Don't re-apply the correction and update the state tracking so we
+          " are in sync with the buffer contents.
+          let b:parinfer_previous_text = l:orig_text
+          let b:parinfer_last_changedtick = b:changedtick
+          let w:parinfer_previous_cursor = s:get_cursor_position()
+          return
         catch /E5\(23\|78\|65\):/ " not allowed here / not allowed to change text here / not allowed to chnage text or change window
           " If an event doesn't allow us to modify the buffer, that's OK.
           " Usually another event will happen before a redraw.
