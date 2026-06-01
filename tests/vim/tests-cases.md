@@ -280,6 +280,25 @@ After `4GO<Enter>(defn h<Enter>  [z]<Enter>z)<Esc>u`:
   y)
 ```
 
+# Undo explosion (#112)
+
+## Undo does not explode the undo tree (#112)
+
+Opening a file with bad indentation causes parinfer to modify it on load.
+Pressing `u` must revert to the original content and not trigger parinfer
+again.
+
+```
+{
+    }
+```
+
+After `uuuuu`:
+```
+{
+    }
+```
+
 # Unicode (#26)
 ## hukka's example (#26)
 
